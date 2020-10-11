@@ -46,9 +46,8 @@ module au_top (
      
     led = 8h00;             // turn LEDs off	
     io_led = 3x{{8h00}};	// turn LEDs off
-    //seg.values = {4hd,4he,4he, 4hd};//display "YAAY"       // the segments will display "000" by default
-    io_seg = ~seg.seg;                    // connect segments to the driver
-    io_sel = ~seg.sel;                    // connect digit select to the driver
+    io_seg = ~seg.seg;          // connect segments to the driver
+    io_sel = ~seg.sel;          // connect digit select to the driver
     
     fulladder.a=0;
     fulladder.b=0;
@@ -57,7 +56,6 @@ module au_top (
     case(state.q){
     	state.MANUAL:
 		io_led[1]=1;
-		//seg.values = {4h02, 4he, 4h03, 4h04};
 		fulladder.a=io_dip[0][2];
 		fulladder.b=io_dip[0][1];
 		fulladder.cin=io_dip[0][0];
@@ -74,48 +72,47 @@ module au_top (
 		}
 
 		//switching flip to auto 
-		  if(io_dip[1][0]){
+		if(io_dip[1][0]){
 		  state.d=state.AUTO;
-		  }
+		}
+		
+		//DIGITS DISPLAYED ON SEVEN SEG
     		if (io_dip[0][2] == 1) {
-      			seg.values[2] = 4h1;//fulladder a
+      			seg.values[2] = 4h1;//digit for fulladder.a
     		}
 		else {
-	      	seg.values[2] = 4h0;
+	      		seg.values[2] = 4h0;
 	    	}
-
 	    	if (io_dip[0][1] == 1) {
-	      	seg.values[1]=4h1;//fulladder b
+	      		seg.values[1]=4h1;//fulladder b
 	      	}
 		else {
-	    	seg.values[1]=4h0;
+	    		seg.values[1]=4h0;
 	    	}
 	    	if (io_dip[0][0]==1){//fulladder cin
-	      	seg.values[0]=4h1;
+	      		seg.values[0]=4h1;
 	    	} 
 	    	else {
-	    	seg.values[0]=4h0;
+	    		seg.values[0]=4h0;
 	    	}
-
-
 	    	if ((io_button[0] == fulladder.s) && (io_button[1] == fulladder.cout)){
-			seg.values[3] = 4h05;//pass case
+			seg.values[3] = 4h05;//pass case displays P
 	    	}
 	    	else {
-			seg.values[3] = 4h02;//fail case
+			seg.values[3] = 4h02;//fail case displays F
 	    	}
         
    
         //Auto
         state.AUTO:
-
 		//switching to manual
 		if(!io_dip[1][0]){
-		state.d=state.MANUAL;          
-		  }
+			state.d=state.MANUAL;          
+		}
 
-		//led to show it is in au_to
+		//led to show it is in auto mode
 		io_led[1] = 0;
+		
 		//setting values of a, b, cin
 		fulladder.cin = delayer.value[0];
 		fulladder.a = delayer.value[1];
@@ -123,49 +120,49 @@ module au_top (
 
 		//On led corresponding to whether A,B,Cin is 1
 		if(delayer.value[0]==1){
-		io_led[0][0]=1;
+			io_led[0][0]=1;
 		} else {
-		io_led[0][0]=0;
+			io_led[0][0]=0;
 		}
 		if(delayer.value[1]==1){
-		io_led[0][1]=1;
+			io_led[0][1]=1;
 		} else {
-		io_led[0][1]=0;
+			io_led[0][1]=0;
 		}
 		if(delayer.value[2]==1){
-		io_led[0][2]=1;
+			io_led[0][2]=1;
 		} else {
-		io_led[0][2]=0;
+			io_led[0][2]=0;
 		}
-
-	       io_led[2][0] = fulladder.s;
+		//led for sum and carry out
+	        io_led[2][0] = fulladder.s;
 		io_led[2][1] = fulladder.cout;
 
 	    	if (delayer.value[1] == 1) {
-	      	seg.values[1] = 4h1;//fulladder a
+	      		seg.values[1] = 4h1;//fulladder a
 	    	}
 	    	else {
-	      	seg.values[1] = 4h0;
+	      		seg.values[1] = 4h0;
 	    	}
 
 	    	if (delayer.value[2] == 1) {
-	      	seg.values[2]=4h1;//fulladder b
+	      		seg.values[2]=4h1;//fulladder b
 	      	} else {
-	    	seg.values[2]=4h0;
+	    		seg.values[2]=4h0;
 	    	}
 	    	if (delayer.value[0]==1){//fulladder cin
-	      	seg.values[0]=4h1;
+	      		seg.values[0]=4h1;
 	    	}
 		else {
-	    	seg.values[0]=4h0;
+	    		seg.values[0]=4h0;
 	    	}
 
-
+		//input of circuit matches that of the fulladder in the fpga
 	    	if ((io_button[0] == fulladder.s) && (io_button[1] == fulladder.cout)){
-		seg.values[3] = 4h05;//pass case
+			seg.values[3] = 4h05;//pass case
 	    	}
 	    	else {
-		seg.values[3] = 4h02;//fail case
+			seg.values[3] = 4h02;//fail case
 	    	}
     
 }
